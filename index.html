@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Urban Commute — Enhanced</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+
+  <!-- External CSS -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Leaflet Script -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+  <div class="app">
+
+    <!-- SPLASH / LOADING -->
+    <div id="splash" class="splash" aria-hidden="false">
+      <div class="splash-inner">
+        <div class="bus-lg" id="splashBus">🚌</div>
+        <div class="splash-title">Urban Commute — Enhanced</div>
+        <div class="splash-sub">Finding the best route for you...</div>
+        <div class="splash-progress"><i></i></div>
+      </div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="header">
+      <div class="left-controls">
+        <div class="hamburger" id="hamburger"><div class="lines"></div></div>
+
+        <div class="app-logo">
+          <span style="font-size:24px">🚌</span>
+          <div class="title">Urban Commute</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px">
+        <!-- CITY CARD -->
+        <div class="city-card" id="cityCard">
+          <div class="city-logo">🚌</div>
+          <div class="city-name" id="cityName">Bangalore</div>
+        </div>
+
+        <!-- LANGUAGE SWITCH -->
+        <div style="position:relative">
+          <button id="langQuick" class="city-card">
+            <img id="langFlag" src="https://flagcdn.com/w20/in.png" />
+            <div id="langLabel">EN</div>
+            <div style="font-size:12px;color:#666">▾</div>
+          </button>
+
+          <div id="langDropdown" class="lang-dropdown">
+            <div class="lang-header">Change language</div>
+
+            <div class="lang-list">
+              <button class="lang-item" data-lang="en">🇬🇧 English - EN</button>
+              <button class="lang-item" data-lang="hi">🇮🇳 हिन्दी - HI</button>
+              <button class="lang-item" data-lang="kn">🇮🇳 ಕನ್ನಡ - KN</button>
+            </div>
+
+            <div class="lang-footer" id="changeRegion">Change country/region</div>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <button class="icon-btn" id="sosQuick">🔒 SOS</button>
+          <button class="icon-btn" id="helpBtn">❓</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- SLIDE PANEL -->
+    <aside id="panel" class="panel">
+      <div class="panel-inner">
+
+        <div class="profile">
+          <div class="avatar">HG</div>
+          <div>
+            <div class="meta">Harshith G Reddy</div>
+            <div class="email">harshith@example.com</div>
+          </div>
+          <div class="panel-close" id="panelClose">✕</div>
+        </div>
+
+        <div class="panel-section">
+          <div class="list">
+            <button id="editProfile">Edit Profile</button>
+            <button id="changeCityBtn">Change City</button>
+            <button id="themeBtn">Toggle Dark / Light</button>
+            <button id="womenSafetyBtn">Women Safety Settings</button>
+            <button id="feedbackBtn">send feedback</button>
+            <button id="logoutBtn">Logout</button>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <h4>Preferences</h4>
+          <div style="display:flex;gap:8px;align-items:center">
+            <label>Preferred mode:</label>
+            <select id="preferredMode">
+              <option value="bus">Bus</option>
+              <option value="metro">Metro</option>
+              <option value="auto">Auto</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- WOMEN SAFETY (Hidden by default) -->
+        <div class="panel-section" id="womenSafetyPanel" style="display:none">
+          <h4>Women Safety</h4>
+          <div class="safety-card">
+
+            <div class="safety-item">
+              <div>
+                <div class="t">SOS Quick Dial</div>
+                <div class="s">Call emergency contacts instantly</div>
+              </div>
+              <label><input type="checkbox" id="sosToggle"> Enable</label>
+            </div>
+
+            <div class="safety-item">
+              <div>
+                <div class="t">Auto Share Location</div>
+                <div class="s">Share live location on SOS</div>
+              </div>
+              <label><input type="checkbox" id="shareToggle"> Enable</label>
+            </div>
+
+            <div class="contact-label">Emergency Numbers</div>
+            
+            <div class="emergency-numbers-grid">
+              <a href="tel:100" class="emergency-number-btn">🚨 100<br><small>Police</small></a>
+              <a href="tel:102" class="emergency-number-btn">🚑 102<br><small>Ambulance</small></a>
+              <a href="tel:101" class="emergency-number-btn">🔥 101<br><small>Fire</small></a>
+              <a href="tel:112" class="emergency-number-btn">📞 112<br><small>Emergency</small></a>
+              <a href="tel:1091" class="emergency-number-btn">👮 1091<br><small>Women</small></a>
+              <a href="tel:1098" class="emergency-number-btn">👶 1098<br><small>Child</small></a>
+            </div>
+
+            <div class="contact-label" style="margin-top:20px">Add Personal Contacts</div>
+
+            <div class="contact-input-row">
+              <input id="contactInput" placeholder="Phone number or name" />
+              <button id="addContactBtn">Add</button>
+            </div>
+
+            <div id="contactsList"></div>
+
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+
+      <div class="location-banner">
+        <div>📍 Enable location for more accurate routes</div>
+        <button id="enableLoc" class="loc-btn">Enable</button>
+      </div>
+
+      <div class="reward-badge">
+        <div class="reward-icon">🏅</div>
+        <div class="reward-copy">
+          <div class="reward-title">Daily Rider Reward</div>
+          <div class="reward-sub">Complete 3 trips to unlock ₹50 metro recharge</div>
+        </div>
+        <button class="reward-btn">View</button>
+      </div>
+
+      <div class="search-card">
+
+        <div id="voiceStatus" class="status-text"></div>
+
+        <div class="inputs">
+          <button id="micBtn" class="mic-btn" title="Tap and speak your route">🎤</button>
+          <input id="start" placeholder="From (auto-detects nearest stop)">
+          <input id="dest" placeholder="To (Destination)">
+          <select id="modeSelect">
+            <option value="bus">🚌 Bus</option>
+            <option value="metro">🚇 Metro</option>
+            <option value="auto">🚗 Auto</option>
+            <option value="bike">🏍 Bike</option>
+          </select>
+        </div>
+
+        <div class="search-actions">
+          <button id="findBtn" class="find-route">Find Route</button>
+          <button id="skipLoginBtn" class="skip">Skip Sign-in</button>
+        </div>
+      </div>
+
+      <div class="sections-new">
+        <!-- LEFT PANEL: Available Buses -->
+        <section class="buses-panel">
+          <div class="panel-header">
+            <h3>Available Buses</h3>
+            <div class="sub">From <strong id="startDisplay">--</strong> to <strong id="destDisplay">--</strong></div>
+          </div>
+
+          <div class="results" id="results"></div>
+
+          <!-- Traffic & Probability Charts -->
+          <div id="statsPanel" class="stats-panel" style="display:none;">
+            <div class="chart-wrapper">
+              <div class="chart-container">
+                <h5>Traffic Density</h5>
+                <canvas id="trafficChart" width="200" height="150"></canvas>
+              </div>
+              <div class="chart-container">
+                <h5>On-Time Probability</h5>
+                <canvas id="probabilityChart" width="200" height="150"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Alternatives & Info -->
+          <div class="alternatives-section">
+            <h5>Alternatives & Info</h5>
+            
+            <!-- AI Recommendations -->
+            <div id="aiRecommendation" class="info-section"></div>
+
+            <!-- Fallback Options -->
+            <div id="fallbackContainer" class="info-section"></div>
+
+            <!-- Last Mile Info -->
+            <div id="lastMileInfo" class="info-section"></div>
+          </div>
+        </section>
+
+        <!-- RIGHT PANEL: Route Map -->
+        <section class="map-panel">
+          <div class="map-header">
+            <h3>Route Map</h3>
+            <!-- Best Time Badge -->
+            <div id="timeBadge" class="time-badge" style="display:none;">
+              <div class="badge-content">
+                <span class="badge-icon">⏰</span>
+                <div class="badge-info">
+                  <div class="badge-title">Best Time to Leave</div>
+                  <div class="badge-time" id="bestTime">--:--</div>
+                </div>
+                <div class="badge-probability">
+                  <div class="prob-label">On-time Probability</div>
+                  <div class="prob-value" id="onTimeProb">--%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- MAP CONTAINER -->
+          <div id="mapContainer" style="height:calc(100vh - 280px);min-height:500px;width:100%;border-radius:12px;border:1px solid var(--border);"></div>
+          
+          <!-- FALLBACK MAP IFRAME -->
+          <iframe 
+            id="mapFrame"
+            src="https://www.google.com/maps?q=Bangalore&output=embed"
+            loading="lazy"
+            style="display:none;height:calc(100vh - 280px);min-height:500px;width:100%;border-radius:12px;border:0;"></iframe>
+        </section>
+      </div>
+    </main>
+
+    <!-- DETAILS MODAL -->
+    <div id="detailsModal" class="modal">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Route Details</h3>
+          <button id="closeDetails">Close</button>
+        </div>
+
+        <div id="detailsContent"></div>
+
+        <div class="app-launch">
+          Open in:
+          <div id="appsList" class="apps"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOGIN MODAL -->
+    <div id="loginModal" class="login-modal">
+      <div class="login-box">
+
+        <div class="login-brand">
+          <div class="emoji">🚌</div>
+          <h2>Urban Commute</h2>
+          <p>Smart Transit Companion</p>
+        </div>
+
+        <h3>Sign In</h3>
+
+        <label>Email Address</label>
+        <input placeholder="your@email.com">
+
+        <label>Password</label>
+        <input type="password" placeholder="ed:-123456">
+
+        <button class="signin">Sign In</button>
+
+        <div class="or">OR</div>
+
+        <button id="continueBtn" class="skip">Skip & Continue</button>
+
+      </div>
+    </div>
+
+    <!-- SOS MODAL (will be created dynamically) -->
+    <div id="sosModal" class="modal" style="display:none;"></div>
+
+    <!-- AI NOTIFICATION POPUP -->
+    <div id="aiNotification" class="notification-popup">
+      <div class="notification-content">
+        <div class="notification-header">
+          <span class="notification-icon">🚌</span>
+          <span class="notification-title">Live Update</span>
+          <button class="notification-mute" id="muteNotification" title="Mute notifications" style="background:rgba(255,255,255,0.2);border:none;color:white;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:background 0.2s;margin-right:8px">🔕</button>
+          <button class="notification-close" id="closeNotification">×</button>
+        </div>
+        <div class="notification-body" id="notificationBody"></div>
+        <div class="notification-actions">
+          <button class="notification-btn-primary" id="acceptNotification">Got it!</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Leaflet Routing Machine + Geocoder -->
+  <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+  <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+  <!-- JS -->
+  <script src="app.js"></script>
+
+</body>
+</html>
